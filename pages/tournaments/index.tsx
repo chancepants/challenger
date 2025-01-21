@@ -3,9 +3,14 @@ import {
   getTournament,
   listEntrants,
   Tournament,
+  createTournament,
 } from '@/src/lib/tournaments';
 import { Box, Button, Grid2, Typography } from '@mui/material';
-import { DataGrid, GridRowSelectionModel } from '@mui/x-data-grid';
+import {
+  DataGrid,
+  GridRowParams,
+  GridRowSelectionModel,
+} from '@mui/x-data-grid';
 import palm from '@/public/transparent-palm.png';
 import Image from 'next/image';
 import { useEffect, useState } from 'react';
@@ -15,7 +20,7 @@ import { useQuery, useQueryClient } from '@tanstack/react-query';
 // TODO prefetch all cheap tournament content for the loaded page - fixed cache size
 export default function Tournaments() {
   const [selectedTournament, setSelectedTournament] = useState<
-    string | undefined
+    number | undefined
   >(undefined);
   const { isPending, isError, data, error } = useQuery({
     queryKey: ['tournaments'],
@@ -64,15 +69,20 @@ export default function Tournaments() {
               width: 450,
             },
           ]}
-          onRowSelectionModelChange={(
-            rowSelectionModel: GridRowSelectionModel
-          ) => {
-            setSelectedTournament(rowSelectionModel.at(0)?.toString());
+          onRowClick={(gridRowParams: GridRowParams<Tournament>) => {
+            setSelectedTournament(gridRowParams.row.id);
           }}
           disableMultipleRowSelection
           rowSelectionModel={selectedTournament}
         />
-        <Button variant="text">Create Tournament</Button>
+        <Button
+          variant="text"
+          onClick={() => {
+            createTournament();
+          }}
+        >
+          Create Tournament
+        </Button>
       </Grid2>
       <Grid2 size={6}>
         <TournamentView id={selectedTournament} />
@@ -82,7 +92,7 @@ export default function Tournaments() {
 }
 
 type TournamentProps = {
-  id: string | undefined;
+  id: number | undefined;
 };
 
 function TournamentView({ id }: TournamentProps) {

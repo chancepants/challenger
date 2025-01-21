@@ -4,8 +4,14 @@ export enum TournamentStatus {
   COMPLETE = 'Complete',
 }
 
+export const tournamentStatusFromValue = new Map<string, TournamentStatus>([
+  ['Not Started', TournamentStatus.NOT_STARTED],
+  ['In Progress', TournamentStatus.IN_PROGRESS],
+  ['Complete', TournamentStatus.COMPLETE],
+]);
+
 export type ListTournamentEntry = {
-  id: string;
+  id: number;
   name: string;
   size: number;
   startTime: Date;
@@ -13,14 +19,14 @@ export type ListTournamentEntry = {
 };
 
 export type Tournament = {
-  id: string;
+  id: number;
   name: string;
   size: number;
   startTime: Date;
   status: TournamentStatus;
   owner: string;
   description: string;
-  logo: string; // TODO: this should be an img we get back
+  logo: string; // location of file -- hmm can load rest of page faster but logo coming late is weird
 };
 
 // TODO should probably figure out my data model... Entrant == USER???
@@ -56,12 +62,20 @@ export async function listTournaments(): Promise<ListTournamentsResponse> {
 }
 
 export async function getTournament(
-  id: string
+  id: number
 ): Promise<Tournament | undefined> {
   const response = await fetch(`/api/tournament/${id}`);
   return response.json();
 }
 
-export function listEntrants(id: string): Entrant[] {
+export async function createTournament(): Promise<Tournament> {
+  return (
+    await fetch(`/api/tournaments`, {
+      method: 'POST',
+    })
+  ).json();
+}
+
+export function listEntrants(id: number): Entrant[] {
   return mockListEntrantsResponse;
 }
