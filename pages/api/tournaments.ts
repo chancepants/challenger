@@ -1,12 +1,13 @@
 import { getDb } from '@/src/lib/db/client';
 import { tournaments } from '@/src/lib/db/schema';
 import {
+  CreateTournamentProps,
   ListTournamentEntry,
   ListTournamentsResponse,
   Tournament,
   TournamentStatus,
   tournamentStatusFromValue,
-} from '@/src/lib/tournaments';
+} from '@/src/lib/tournament/tournaments';
 import { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import { NextApiRequest, NextApiResponse } from 'next';
 
@@ -17,19 +18,8 @@ export default async function handler(
   const db = getDb();
   switch (req.method) {
     case 'POST':
-      console.log(req.body);
-      const tourny: Tournament = {
-        id: Math.floor(Math.random() * 1_000_000),
-        name: "Chance's House of Horrors",
-        size: 16,
-        startTime: new Date(1737342424),
-        status: TournamentStatus.NOT_STARTED,
-        owner: 'chance',
-        logo: 'todo',
-        description: 'this thing is awesome',
-      };
-      createTournament(db, tourny);
-      res.status(201).json(tourny);
+      const tournament = await createTournament(db, req.body);
+      res.status(201).json(tournament);
       break;
     case 'GET':
       // TODO could just pick out ListTournamentEntry cols or update model to return full
@@ -42,9 +32,23 @@ export default async function handler(
 
 async function createTournament(
   db: NodePgDatabase,
-  tournament: Tournament
-): Promise<void> {
+  body: any
+): Promise<Tournament> {
+  const createProps: CreateTournamentProps = JSON.parse(body, (key, val) => {
+    if (key == 'startTime') {
+      return new Date(val);
+    }
+    return val;
+  });
+  const tournament: Tournament = {
+    id: Math.floor(Math.random() * 10_000),
+    status: TournamentStatus.NOT_STARTED,
+    owner: 'Chance',
+    logo: 'TODO',
+    ...createProps,
+  };
   await db.insert(tournaments).values({ ...tournament });
+  return tournament;
 }
 
 async function listTournaments(

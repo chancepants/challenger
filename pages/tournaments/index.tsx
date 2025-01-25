@@ -4,8 +4,16 @@ import {
   listEntrants,
   Tournament,
   createTournament,
-} from '@/src/lib/tournaments';
-import { Box, Button, Grid2, Typography } from '@mui/material';
+  TournamentQueryKey,
+} from '@/src/lib/tournament/tournaments';
+import {
+  Box,
+  Button,
+  Grid2,
+  Modal,
+  TextField,
+  Typography,
+} from '@mui/material';
 import {
   DataGrid,
   GridRowParams,
@@ -15,15 +23,16 @@ import palm from '@/public/transparent-palm.png';
 import Image from 'next/image';
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
 // TODO prefetch all cheap tournament content for the loaded page - fixed cache size
 export default function Tournaments() {
+  const queryClient = useQueryClient();
   const [selectedTournament, setSelectedTournament] = useState<
     number | undefined
   >(undefined);
   const { isPending, isError, data, error } = useQuery({
-    queryKey: ['tournaments'],
+    queryKey: [TournamentQueryKey.TOURNAMENTS],
     queryFn: listTournaments,
   });
 
@@ -37,57 +46,52 @@ export default function Tournaments() {
     return <span>Loading...</span>;
   }
   return (
-    <Grid2
-      container
-      spacing={4}
-      paddingTop={4}
-      paddingLeft={12}
-      paddingRight={12}
-    >
-      <Grid2 size={6}>
-        <DataGrid
-          rows={data?.tournaments}
-          columns={[
-            {
-              field: 'name',
-              headerName: 'Name',
-              width: 350,
-            },
-            {
-              field: 'size',
-              headerName: 'Entrants',
-              width: 150,
-            },
-            {
-              field: 'status',
-              headerName: 'Status',
-              width: 150,
-            },
-            {
-              field: 'startTime',
-              headerName: 'Start Time',
-              width: 450,
-            },
-          ]}
-          onRowClick={(gridRowParams: GridRowParams<Tournament>) => {
-            setSelectedTournament(gridRowParams.row.id);
-          }}
-          disableMultipleRowSelection
-          rowSelectionModel={selectedTournament}
-        />
-        <Button
-          variant="text"
-          onClick={() => {
-            createTournament();
-          }}
-        >
-          Create Tournament
-        </Button>
+    <div>
+      <CreateTournamentModal />
+      <Grid2
+        container
+        spacing={4}
+        paddingTop={2}
+        paddingLeft={12}
+        paddingRight={12}
+      >
+        <Grid2 size={6}>
+          <DataGrid
+            rows={data?.tournaments}
+            columns={[
+              {
+                field: 'name',
+                headerName: 'Name',
+                width: 350,
+              },
+              {
+                field: 'size',
+                headerName: 'Entrants',
+                width: 150,
+              },
+              {
+                field: 'status',
+                headerName: 'Status',
+                width: 150,
+              },
+              {
+                field: 'startTime',
+                headerName: 'Start Time',
+                width: 450,
+              },
+            ]}
+            onRowClick={(gridRowParams: GridRowParams<Tournament>) => {
+              setSelectedTournament(gridRowParams.row.id);
+            }}
+            disableMultipleRowSelection
+            rowSelectionModel={selectedTournament}
+          />
+        </Grid2>
+        <Grid2 size={6}>
+          <TournamentView id={selectedTournament} />
+        </Grid2>
       </Grid2>
-      <Grid2 size={6}>
-        <TournamentView id={selectedTournament} />
-      </Grid2>
-    </Grid2>
+    </div>
   );
 }
 
@@ -142,5 +146,83 @@ function TournamentView({ id }: TournamentProps) {
         </Grid2>
       </Grid2>
     </Box>
+  );
+}
+
+const style = {
+  position: 'absolute',
+  top: '25%',
+  left: '50%',
+  transform: 'translate(-50%, -50%)',
+  width: 1200,
+  bgcolor: 'background.paper',
+  border: '2px solid #000',
+  boxShadow: 24,
+  p: 4,
+};
+
+// TODO: datetime picker for start time
+function CreateTournamentModal() {
+  const [name, setName] = useState('');
+  const [size, setSize] = useState('');
+  const [startTime, setStartTime] = useState('');
+  const [description, setDescription] = useState('');
+  const queryClient = useQueryClient();
+  const addTournamentMutation = useMutation({
+    mutationFn: createTournament,
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: [TournamentQueryKey.TOURNAMENTS],
+      });
+    },
+  });
+  const [open, setOpen] = useState(false);
+  return (
+    <div>
+      <Button variant="text" onClick={() => setOpen(true)}>
+        Create Tournament
+      </Button>
+      <Modal open={open} onClose={() => setOpen(false)}>
+        <Box sx={style}>
+          <TextField
+            id="name"
+            label="name"
+            variant="outlined"
+            onChange={(e) => setName(e.target.value)}
+          />
+          <TextField
+            id="size"
+            label="size"
+            variant="outlined"
+            onChange={(e) => setSize(e.target.value)}
+          />
+          <TextField
+            id="start-time"
+            label="start time"
+            variant="outlined"
+            onChange={(e) => setStartTime(e.target.value)}
+          />
+          <TextField
+            id="description"
+            label="description"
+            variant="outlined"
+            onChange={(e) => setDescription(e.target.value)}
+          />
+          <Button
+            variant="text"
+            onClick={() =>
+              addTournamentMutation.mutate({
+                name: name,
+                size: parseInt(size),
+                startTime: new Date(parseInt(startTime)),
+                description: description,
+              })
+            }
+          >
+            Submit
+          </Button>
+        </Box>
+      </Modal>
+    </div>
   );
 }

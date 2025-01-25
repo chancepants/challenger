@@ -4,6 +4,10 @@ export enum TournamentStatus {
   COMPLETE = 'Complete',
 }
 
+export enum TournamentQueryKey {
+  TOURNAMENTS = 'tournaments',
+}
+
 export const tournamentStatusFromValue = new Map<string, TournamentStatus>([
   ['Not Started', TournamentStatus.NOT_STARTED],
   ['In Progress', TournamentStatus.IN_PROGRESS],
@@ -37,6 +41,13 @@ export type Entrant = {
   seed: number;
 };
 
+export type CreateTournamentProps = {
+  name: string;
+  size: number;
+  startTime: Date;
+  description: string;
+};
+
 export type ListTournamentsResponse = {
   tournaments: ListTournamentEntry[];
 };
@@ -68,10 +79,18 @@ export async function getTournament(
   return response.json();
 }
 
-export async function createTournament(): Promise<Tournament> {
+export async function createTournament(
+  props: CreateTournamentProps
+): Promise<Tournament> {
   return (
     await fetch(`/api/tournaments`, {
       method: 'POST',
+      body: JSON.stringify({
+        name: props.name,
+        size: props.size,
+        startTime: props.startTime,
+        description: props.description,
+      }),
     })
   ).json();
 }

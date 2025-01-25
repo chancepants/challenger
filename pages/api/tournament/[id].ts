@@ -3,7 +3,7 @@ import {
   Tournament,
   TournamentStatus,
   tournamentStatusFromValue,
-} from '@/src/lib/tournaments';
+} from '@/src/lib/tournament/tournaments';
 import { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import { tournaments } from '@/src/lib/db/schema';
 import { eq } from 'drizzle-orm';

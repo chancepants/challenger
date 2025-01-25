@@ -9,6 +9,9 @@
 
 ### Mid
 
+- manual vs automated tournament start - if automated what process updates status and opens up active tournament behaviors?
+- pagination
+- update tournamentBracketState - bracket progression
 - proper request error handling in api routes
 - repeatable postgres setup via flyway or something similar
 - useful navbar
