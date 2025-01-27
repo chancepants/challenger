@@ -14,14 +14,6 @@ export const tournamentStatusFromValue = new Map<string, TournamentStatus>([
   ['Complete', TournamentStatus.COMPLETE],
 ]);
 
-export type ListTournamentEntry = {
-  id: number;
-  name: string;
-  size: number;
-  startTime: Date;
-  status: TournamentStatus;
-};
-
 export type Tournament = {
   id: number;
   name: string;
@@ -41,17 +33,6 @@ export type Entrant = {
   seed: number;
 };
 
-export type CreateTournamentProps = {
-  name: string;
-  size: number;
-  startTime: Date;
-  description: string;
-};
-
-export type ListTournamentsResponse = {
-  tournaments: ListTournamentEntry[];
-};
-
 const mockListEntrantsResponse: Entrant[] = [
   {
     id: '1',
@@ -66,34 +47,6 @@ const mockListEntrantsResponse: Entrant[] = [
     seed: 2,
   },
 ];
-
-export async function listTournaments(): Promise<ListTournamentsResponse> {
-  const response = await fetch('/api/tournaments');
-  return response.json();
-}
-
-export async function getTournament(
-  id: number
-): Promise<Tournament | undefined> {
-  const response = await fetch(`/api/tournament/${id}`);
-  return response.json();
-}
-
-export async function createTournament(
-  props: CreateTournamentProps
-): Promise<Tournament> {
-  return (
-    await fetch(`/api/tournaments`, {
-      method: 'POST',
-      body: JSON.stringify({
-        name: props.name,
-        size: props.size,
-        startTime: props.startTime,
-        description: props.description,
-      }),
-    })
-  ).json();
-}
 
 export function listEntrants(id: number): Entrant[] {
   return mockListEntrantsResponse;

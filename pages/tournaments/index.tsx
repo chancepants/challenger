@@ -1,9 +1,6 @@
 import {
-  listTournaments,
-  getTournament,
   listEntrants,
   Tournament,
-  createTournament,
   TournamentQueryKey,
 } from '@/src/lib/tournament/tournaments';
 import {
@@ -14,31 +11,27 @@ import {
   TextField,
   Typography,
 } from '@mui/material';
-import {
-  DataGrid,
-  GridRowParams,
-  GridRowSelectionModel,
-} from '@mui/x-data-grid';
+import { DataGrid, GridRowParams } from '@mui/x-data-grid';
 import palm from '@/public/transparent-palm.png';
 import Image from 'next/image';
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { api } from '@/src/utils/api';
 
 // TODO prefetch all cheap tournament content for the loaded page - fixed cache size
 export default function Tournaments() {
-  const queryClient = useQueryClient();
   const [selectedTournament, setSelectedTournament] = useState<
     number | undefined
   >(undefined);
   const { isPending, isError, data, error } = useQuery({
     queryKey: [TournamentQueryKey.TOURNAMENTS],
-    queryFn: listTournaments,
+    queryFn: async () => api.tournament.list.query(),
   });
 
   useEffect(() => {
     if (!isPending) {
-      setSelectedTournament(data?.tournaments.at(0)?.id);
+      setSelectedTournament(data?.at(0)?.id);
     }
   }, [data]);
 
@@ -57,7 +50,7 @@ export default function Tournaments() {
       >
         <Grid2 size={6}>
           <DataGrid
-            rows={data?.tournaments}
+            rows={data}
             columns={[
               {
                 field: 'name',
@@ -105,7 +98,7 @@ function TournamentView({ id }: TournamentProps) {
   }
   const { isPending, isError, data, error } = useQuery({
     queryKey: [id],
-    queryFn: () => getTournament(id),
+    queryFn: async () => api.tournament.getById.query({ id: id }),
   });
 
   if (data == undefined) {
@@ -169,7 +162,7 @@ function CreateTournamentModal() {
   const [description, setDescription] = useState('');
   const queryClient = useQueryClient();
   const addTournamentMutation = useMutation({
-    mutationFn: createTournament,
+    mutationFn: api.tournament.create.mutate,
     onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: [TournamentQueryKey.TOURNAMENTS],

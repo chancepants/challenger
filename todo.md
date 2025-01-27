@@ -6,6 +6,7 @@
   - API
   - modal/wizard and nice reload on table when created
 - updateTournament API
+- use tRPC for client/server routing stuff
 
 ### Mid
 
@@ -13,6 +14,7 @@
 - pagination
 - update tournamentBracketState - bracket progression
 - proper request error handling in api routes
+- client-side input validation (ZOD IT UP) - https://zod.dev/
 - repeatable postgres setup via flyway or something similar
 - useful navbar
 - tournmanet finder
