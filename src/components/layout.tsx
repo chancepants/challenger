@@ -6,11 +6,9 @@ export default function Layout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <>
-      <ThemeProvider theme={darkTheme}>
-        <NavBar />
-        <main>{children}</main>
-      </ThemeProvider>
-    </>
+    <div>
+      <NavBar />
+      <main>{children}</main>
+    </div>
   );
 }
