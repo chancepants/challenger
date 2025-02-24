@@ -3,9 +3,9 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev --turbopack --experimental-https",
-    "build": "next build",
-    "start": "next start",
+    "dev": "nodemon",
+    "build": "next build && tsc server.ts",
+    "start": "NODE_ENV=production node server.js",
     "lint": "next lint",
     "format": "prettier --write ."
   },
@@ -22,6 +22,8 @@
     "drizzle-orm": "^0.38.4",
     "next": "15.0.3",
     "pg": "^8.13.1",
+    "react-zoom-pan-pinch": "^3.7.0",
+    "socket.io": "^4.8.1",
     "superjson": "^2.2.2",
     "zod": "^3.24.1"
   },

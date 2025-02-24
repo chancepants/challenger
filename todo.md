@@ -6,7 +6,6 @@
   - API
   - modal/wizard and nice reload on table when created
 - updateTournament API
-- use tRPC for client/server routing stuff
 
 ### Mid
 

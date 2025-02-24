@@ -6,7 +6,7 @@ export const api = createTRPCClient<AppRouter>({
   links: [
     httpBatchLink({
       transformer: superjson,
-      url: 'https://localhost:3000/api/trpc',
+      url: 'http://localhost:3000/api/trpc',
     }),
   ],
 });
